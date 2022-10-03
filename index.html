@@ -49,7 +49,15 @@
       function createInfo() {
         var info = "Replacements:";
         for (key in mapping) {
-          info = info + "\n" + key + " -> " + mapping[key].doc + " '" + mapping[key].value + "'";
+          info =
+            info +
+            "\n" +
+            key +
+            " -> " +
+            mapping[key].doc +
+            " '" +
+            mapping[key].value +
+            "'";
         }
         return info;
       }
@@ -70,14 +78,14 @@
         }
 
         set endDate(val) {
-            this._endDate = val;
+          this._endDate = val;
         }
         get endDate() {
           return this._endDate;
         }
 
         get hasTime() {
-            return this._hasTime;
+          return this._hasTime;
         }
       }
 
@@ -151,7 +159,7 @@
           addCol(tr, "eventsummary").textContent = e.summary;
           addCol(tr, "eventbegindate").textContent =
             e.beginDate.toLocaleDateString();
-            addCol(tr, "eventenddate").textContent =
+          addCol(tr, "eventenddate").textContent =
             e.endDate.toLocaleDateString();
         }
       }
@@ -181,12 +189,12 @@
             match.groups.bm - 1,
             match.groups.bd
           );
-          if(!(match.groups.ey === undefined)) {
+          if (!(match.groups.ey === undefined)) {
             e.endDate = new Date(
-            match.groups.ey,
-            match.groups.em - 1,
-            match.groups.ed
-          );
+              match.groups.ey,
+              match.groups.em - 1,
+              match.groups.ed
+            );
           }
           events.push(e);
         }
@@ -210,7 +218,9 @@ Hi 01.01.2000 31.01.2000
     <button onclick="parse()">parse</button>
     <div id="infotext"></div>
     <div id="regexpdiv">
-      <input id="regexpinput" value="$s $b( $e)?" /><button onclick="expandHandler()">
+      <input id="regexpinput" value="$s $b( $e)?" /><button
+        onclick="expandHandler()"
+      >
         expand
       </button>
     </div>
