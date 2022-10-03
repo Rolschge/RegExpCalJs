@@ -1,119 +1,168 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>RegExpCalJs</title>
-        <style>
-table td {
-    border: 1px solid black;
-}            
+  <head>
+    <title>RegExpCalJs</title>
+    <style>
+      table td {
+        border: 1px solid black;
+      }
 
-#inputtext {
-    height: 30px;
-    width: 100%;
-}
-        </style><script>
-const mapping = {
-    "$s": {value: "(?<s>.*)", doc: "Summary"},
-    "$b": {value: "(?<bd>\\d\\d)\\.(?<bm>\\d\\d)\\.(?<by>\\d\\d\\d\\d)", doc:"Begin date"}
-}
+      #inputtext {
+        height: 30px;
+        width: 100%;
+      }
 
-class Event {
-    summary = ""
+      #infotext {
+        font-family: monospace;
+      }
 
-    set beginDate(val) {
-        this._beginDate = val;
-        if(!this._endDate) {
-            this._endDate = val;
+      #regexpdiv {
+        width: 100%;
+        height: 1.5vh;
+      }
+      #regexpdiv input {
+        left: 0px;
+        right: 100px;
+        position: absolute;
+      }
+      #regexpdiv button {
+        width: 100px;
+        position: absolute;
+        right: 0px;
+      }
+    </style>
+    <script>
+      const mapping = {
+        $s: { value: "(?<s>.*)", doc: "Summary" },
+        $b: {
+          value: "(?<bd>\\d\\d)\\.(?<bm>\\d\\d)\\.(?<by>\\d\\d\\d\\d)",
+          doc: "Begin date",
+        },
+        "\\t": { value: "\t", doc: "Tab" },
+      };
+
+      function createInfo() {
+        var info = "Replacements:";
+        for (key in mapping) {
+          info = info + "\n" + key + " -> " + mapping[key].doc;
         }
-    } 
+        return info;
+      }
 
-    get beginDate() {
-        return this._beginDate;
-    }
-    get endDate() {
-        return this._endDate;
-    }
-}
-function setDownload(events) {
-  var link = document.getElementById("downloadlink");
-  link.download = "Calendar.ics";
-  link.href = "data:text/plain,CAL";
-}
+      class Event {
+        summary = "";
 
-function printEvents(events) {
-    function addCol(tr, cssclass) {
-        let td = document.createElement("td");
-        td.classList.add(cssclass);
-        tr.appendChild(td);
-        return td;
-    }
+        set beginDate(val) {
+          this._beginDate = val;
+          if (!this._endDate) {
+            this._endDate = val;
+          }
+        }
 
-    function addRow(table) {
-        let tr = document.createElement("tr");
-        table.appendChild(tr);
-        return tr;
-    }
+        get beginDate() {
+          return this._beginDate;
+        }
+        get endDate() {
+          return this._endDate;
+        }
+      }
+      function setDownload(events) {
+        var link = document.getElementById("downloadlink");
+        link.download = "Calendar.ics";
+        link.href = "data:text/plain,CAL";
+      }
 
-    let table = document.getElementById("Ausgabe");
-    table.replaceChildren();
+      function printEvents(events) {
+        function addCol(tr, cssclass) {
+          let td = document.createElement("td");
+          td.classList.add(cssclass);
+          tr.appendChild(td);
+          return td;
+        }
 
-    events.forEach(e => {
-        let tr = addRow(table);
-        addCol(tr, "eventsummary").textContent = e.summary;
-        addCol(tr, "eventbegindate").textContent = e.beginDate.toLocaleDateString();
-    });
-}
+        function addRow(table) {
+          let tr = document.createElement("tr");
+          table.appendChild(tr);
+          return tr;
+        }
 
-function expand(input) {
-    var output = input;
-    for(key in mapping) {
-        output = output.replace(key, mapping[key].value);
-    }
-    return output;
-}
+        let table = document.getElementById("Ausgabe");
+        table.replaceChildren();
 
-function parse() {
-    let inputText = document.getElementById("inputtext").value;
-    let regexinput = document.getElementById("regexpinput").value;
-// $s = summary = (?<s>.*), $b = begin date = (?<b>(?<bd>\d\d)\.(?<bm>\d\d)\.(?<by>\d\d\d\d))
-    let regtext = expand(regexinput);
-                        
-    let events = [];
+        for (const e of events) {
+          let tr = addRow(table);
+          addCol(tr, "eventsummary").textContent = e.summary;
+          addCol(tr, "eventbegindate").textContent =
+            e.beginDate.toLocaleDateString();
+        }
+      }
 
-    let regexp = new RegExp(regtext, "g");
-    for(const match of inputText.matchAll(regtext)) {
-    
-    let e = new Event();
-    e.summary = match.groups.s;
-    e.beginDate = new Date(match.groups.by, match.groups.bm -1, match.groups.bd)
-    events.push(e);
-    }
-    printEvents(events);
-    setDownload(events);
-}
-        </script>
-    </head>
-    <body>
-        <h1>RegExpCalJs</h1>
-        <textarea rows="10" id="inputtext">Hi 01.01.2000
-1. Weihnachten 24.12.2022</textarea>
-        <button onclick="parse()">Parsen</button>
-        <pre>$s = summary = (?&lt;s&gt;.*), $b = begin date = (?&lt;b&gt;(?&lt;bd&gt;\d\d)\.(?&lt;bm&gt;\d\d)\.(?&lt;by&gt;\d\d\d\d))</pre>
-        <div>
-            <input id="regexpinput" value="$s $b">
-        </div>
-        <div>
-            <table>
-<thead>
-<tr><th>Summary</th><th>Begin Date</th></tr>
-</thead>
-<tbody  id="Ausgabe">
+      function expand(input) {
+        var output = input;
+        for (var key in mapping) {
+          output = output.replace(key, mapping[key].value);
+        }
+        return output;
+      }
 
-</tbody>
-            </table>
-        </div>
-        <div>
-            <a href="" id="downloadlink">Download</a>
-        </div>
-    </body>
+      function parse() {
+        let inputText = document.getElementById("inputtext").value;
+        let regexinput = document.getElementById("regexpinput").value;
+        // $s = summary = (?<s>.*), $b = begin date = (?<b>(?<bd>\d\d)\.(?<bm>\d\d)\.(?<by>\d\d\d\d))
+        let regtext = expand(regexinput);
+
+        let events = [];
+
+        let regexp = new RegExp(regtext, "g");
+        for (const match of inputText.matchAll(regtext)) {
+          let e = new Event();
+          e.summary = match.groups.s;
+          e.beginDate = new Date(
+            match.groups.by,
+            match.groups.bm - 1,
+            match.groups.bd
+          );
+          events.push(e);
+        }
+        printEvents(events);
+        setDownload(events);
+      }
+
+      function expandHandler() {
+        let el = document.getElementById("regexpinput");
+        el.value = expand(el.value);
+      }
+    </script>
+  </head>
+  <body>
+    <h1>RegExpCalJs</h1>
+    <textarea rows="10" id="inputtext">
+Hi 01.01.2000
+1. Weihnachten 24.12.2022</textarea
+    >
+    <button onclick="parse()">parse</button>
+    <div id="infotext"></div>
+    <div id="regexpdiv">
+      <input id="regexpinput" value="$s $b" /><button onclick="expandHandler()">
+        expand
+      </button>
+    </div>
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th>Summary</th>
+            <th>Begin Date</th>
+          </tr>
+        </thead>
+        <tbody id="Ausgabe"></tbody>
+      </table>
+    </div>
+    <div>
+      <a href="" id="downloadlink">Download</a>
+    </div>
+    <script>
+      document.getElementById("infotext").innerText = createInfo();
+    </script>
+  </body>
 </html>
