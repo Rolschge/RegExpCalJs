@@ -34,10 +34,14 @@
     </style>
     <script>
       const mapping = {
-        $s: { value: "(?<s>.*)", doc: "Summary" },
+        $s: { value: "(?<s>.*?)", doc: "Summary" },
         $b: {
           value: "(?<bd>\\d\\d)\\.(?<bm>\\d\\d)\\.(?<by>\\d\\d\\d\\d)",
           doc: "Begin date",
+        },
+        $e: {
+          value: "(?<ed>\\d\\d)\\.(?<em>\\d\\d)\\.(?<ey>\\d\\d\\d\\d)",
+          doc: "End date",
         },
         "\\t": { value: "\t", doc: "Tab" },
       };
@@ -45,7 +49,7 @@
       function createInfo() {
         var info = "Replacements:";
         for (key in mapping) {
-          info = info + "\n" + key + " -> " + mapping[key].doc;
+          info = info + "\n" + key + " -> " + mapping[key].doc + " '" + mapping[key].value + "'";
         }
         return info;
       }
@@ -63,6 +67,10 @@
 
         get beginDate() {
           return this._beginDate;
+        }
+
+        set endDate(val) {
+            this._endDate = val;
         }
         get endDate() {
           return this._endDate;
@@ -143,6 +151,8 @@
           addCol(tr, "eventsummary").textContent = e.summary;
           addCol(tr, "eventbegindate").textContent =
             e.beginDate.toLocaleDateString();
+            addCol(tr, "eventenddate").textContent =
+            e.endDate.toLocaleDateString();
         }
       }
 
@@ -171,6 +181,13 @@
             match.groups.bm - 1,
             match.groups.bd
           );
+          if(!(match.groups.ey === undefined)) {
+            e.endDate = new Date(
+            match.groups.ey,
+            match.groups.em - 1,
+            match.groups.ed
+          );
+          }
           events.push(e);
         }
         printEvents(events);
@@ -187,13 +204,13 @@
   <body>
     <h1>RegExpCalJs</h1>
     <textarea rows="10" id="inputtext">
-Hi 01.01.2000
+Hi 01.01.2000 31.01.2000
 1. Weihnachten 24.12.2022</textarea
     >
     <button onclick="parse()">parse</button>
     <div id="infotext"></div>
     <div id="regexpdiv">
-      <input id="regexpinput" value="$s $b" /><button onclick="expandHandler()">
+      <input id="regexpinput" value="$s $b( $e)?" /><button onclick="expandHandler()">
         expand
       </button>
     </div>
@@ -203,6 +220,7 @@ Hi 01.01.2000
           <tr>
             <th>Summary</th>
             <th>Begin Date</th>
+            <th>End Date</th>
           </tr>
         </thead>
         <tbody id="Ausgabe"></tbody>
