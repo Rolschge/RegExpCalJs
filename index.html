@@ -11,8 +11,12 @@ table td {
     height: 30px;
     width: 100%;
 }
-        </style>
-        <script>
+        </style><script>
+const mapping = {
+    "$s": {value: "(?<s>.*)", doc: "Summary"},
+    "$b": {value: "(?<bd>\\d\\d)\\.(?<bm>\\d\\d)\\.(?<by>\\d\\d\\d\\d)", doc:"Begin date"}
+}
+
 class Event {
     summary = ""
 
@@ -60,18 +64,28 @@ function printEvents(events) {
     });
 }
 
+function expand(input) {
+    var output = input;
+    for(key in mapping) {
+        output = output.replace(key, mapping[key].value);
+    }
+    return output;
+}
+
 function parse() {
     let inputText = document.getElementById("inputtext").value;
     let regexinput = document.getElementById("regexpinput").value;
-
+// $s = summary = (?<s>.*), $b = begin date = (?<b>(?<bd>\d\d)\.(?<bm>\d\d)\.(?<by>\d\d\d\d))
+    let regtext = expand(regexinput);
+                        
     let events = [];
 
-    let regexp = new RegExp(regexinput, "g");
-    for(const match of inputText.matchAll(regexp)) {
+    let regexp = new RegExp(regtext, "g");
+    for(const match of inputText.matchAll(regtext)) {
     
     let e = new Event();
     e.summary = match.groups.s;
-    e.beginDate = new Date(match.groups.b)
+    e.beginDate = new Date(match.groups.by, match.groups.bm -1, match.groups.bd)
     events.push(e);
     }
     printEvents(events);
@@ -81,11 +95,12 @@ function parse() {
     </head>
     <body>
         <h1>RegExpCalJs</h1>
-        <textarea rows="10" id="inputtext">Hi 01.01.2000</textarea>
+        <textarea rows="10" id="inputtext">Hi 01.01.2000
+1. Weihnachten 24.12.2022</textarea>
         <button onclick="parse()">Parsen</button>
-        <pre>s = summary, b = begin date</pre>
+        <pre>$s = summary = (?&lt;s&gt;.*), $b = begin date = (?&lt;b&gt;(?&lt;bd&gt;\d\d)\.(?&lt;bm&gt;\d\d)\.(?&lt;by&gt;\d\d\d\d))</pre>
         <div>
-            <input id="regexpinput" value="(?<s>.*) (?<b>.{10})">
+            <input id="regexpinput" value="$s $b">
         </div>
         <div>
             <table>
