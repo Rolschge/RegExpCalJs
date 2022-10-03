@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RegExpCalJs</title>
+        <style>
+table td {
+    border: 1px solid black;
+}            
+        </style>
+        <script>
+class Event {
+    summary = ""
+
+    set beginDate(val) {
+        this._beginDate = val;
+        if(!this._endDate) {
+            this._endDate = val;
+        }
+    } 
+
+    get beginDate() {
+        return this._beginDate;
+    }
+    get endDate() {
+        return this._endDate;
+    }
+}
+
+function printEvents(events) {
+    function addCol(tr, cssclass) {
+        let td = document.createElement("td");
+        td.classList.add(cssclass);
+        tr.appendChild(td);
+        return td;
+    }
+
+    function addRow(table) {
+        let tr = document.createElement("tr");
+        table.appendChild(tr);
+        return tr;
+    }
+
+    let table = document.getElementById("Ausgabe");
+    table.replaceChildren();
+
+    events.forEach(e => {
+        let tr = addRow(table);
+        addCol(tr, "eventsummary").textContent = e.summary;
+        addCol(tr, "eventbegindate").textContent = e.beginDate;
+    });
+}
+
+function parse() {
+    let inputText = document.getElementById("inputtext").value;
+    let e = new Event();
+    e.summary = inputText;
+    e.beginDate = Date.parse(inputText)
+
+    let events = [e];
+
+    printEvents(events);
+}
+        </script>
+    </head>
+    <body>
+        <h1>RegExpCalJs</h1>
+        <input id="inputtext">
+        <button onclick="parse()">Parsen</button>
+        <div>
+            <input id="regexpinput">
+        </div>
+        <div>
+            <table>
+<thead>
+<tr><th>Summary</th><th>Begin Date</th></tr>
+</thead>
+<tbody  id="Ausgabe">
+
+</tbody>
+            </table>
+        </div>
+    </body>
+</html>
