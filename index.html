@@ -12,7 +12,8 @@
         width: 100%;
       }
 
-      #infotext {
+      #infotext,
+      #caltxt {
         font-family: monospace;
       }
 
@@ -51,6 +52,7 @@
 
       class Event {
         summary = "";
+        _hasTime = false;
 
         set beginDate(val) {
           this._beginDate = val;
@@ -65,11 +67,58 @@
         get endDate() {
           return this._endDate;
         }
+
+        get hasTime() {
+            return this._hasTime;
+        }
       }
+
+      function createICS(events) {
+        function fmtDate(date, hasTime) {
+          function p(s, d) {
+            let t = "000000000000" + s.toString();
+            return t.substring(t.length - d, t.length);
+          }
+          let p2 = (s) => p(s, 2);
+          let p4 = (s) => p(s, 4);
+          let datestr =
+            p4(date.getFullYear()) +
+            p2(date.getMonth() + 1) +
+            p2(date.getDate());
+          if (hasTime)
+            datestr =
+              datestr +
+              "T" +
+              p2(date.getHours()) +
+              p2(date.getMinutes()) +
+              p2(date.getSeconds());
+          return datestr;
+        }
+        var output = "BEGIN:VCALENDAR\nVERSION:2.0\n";
+        for (const e of events) {
+          output =
+            output +
+            "BEGIN:VEVENT\n" +
+            "DTSTART;VALUE=DATE:" +
+            fmtDate(e.beginDate, e.hasTime) +
+            "\n" +
+            "DTEND;VALUE=DATE:" +
+            fmtDate(e.endDate, e.hasTime) +
+            "\n" +
+            "SUMMARY:" +
+            e.summary +
+            "\n" +
+            "END:VEVENT\n";
+        }
+        return output + "END:VCALENDAR\n";
+      }
+
       function setDownload(events) {
+        let caldata = createICS(events);
+
         var link = document.getElementById("downloadlink");
         link.download = "Calendar.ics";
-        link.href = "data:text/plain,CAL";
+        link.href = "data:text/calendar," + caldata;
       }
 
       function printEvents(events) {
@@ -126,6 +175,7 @@
         }
         printEvents(events);
         setDownload(events);
+        document.getElementById("caltxt").innerText = createICS(events);
       }
 
       function expandHandler() {
@@ -160,6 +210,7 @@ Hi 01.01.2000
     </div>
     <div>
       <a href="" id="downloadlink">Download</a>
+      <div id="caltxt"></div>
     </div>
     <script>
       document.getElementById("infotext").innerText = createInfo();
