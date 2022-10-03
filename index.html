@@ -6,6 +6,11 @@
 table td {
     border: 1px solid black;
 }            
+
+#inputtext {
+    height: 30px;
+    width: 100%;
+}
         </style>
         <script>
 class Event {
@@ -46,28 +51,35 @@ function printEvents(events) {
     events.forEach(e => {
         let tr = addRow(table);
         addCol(tr, "eventsummary").textContent = e.summary;
-        addCol(tr, "eventbegindate").textContent = e.beginDate;
+        addCol(tr, "eventbegindate").textContent = e.beginDate.toLocaleDateString();
     });
 }
 
 function parse() {
     let inputText = document.getElementById("inputtext").value;
+    let regexinput = document.getElementById("regexpinput").value;
+
+    let events = [];
+
+    let regexp = new RegExp(regexinput, "g");
+    for(const match of inputText.matchAll(regexp)) {
+    
     let e = new Event();
-    e.summary = inputText;
-    e.beginDate = Date.parse(inputText)
-
-    let events = [e];
-
+    e.summary = match.groups.s;
+    e.beginDate = new Date(match.groups.b)
+    events.push(e);
+    }
     printEvents(events);
 }
         </script>
     </head>
     <body>
         <h1>RegExpCalJs</h1>
-        <input id="inputtext">
+        <textarea rows="10" id="inputtext">Hi 01.01.2000</textarea>
         <button onclick="parse()">Parsen</button>
+        <pre>s = summary, b = begin date</pre>
         <div>
-            <input id="regexpinput">
+            <input id="regexpinput" value="(?<s>.*) (?<b>.{10})">
         </div>
         <div>
             <table>
