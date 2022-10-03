@@ -30,6 +30,11 @@ class Event {
         return this._endDate;
     }
 }
+function setDownload(events) {
+  var link = document.getElementById("downloadlink");
+  link.download = "Calendar.ics";
+  link.href = "data:text/plain,CAL";
+}
 
 function printEvents(events) {
     function addCol(tr, cssclass) {
@@ -70,6 +75,7 @@ function parse() {
     events.push(e);
     }
     printEvents(events);
+    setDownload(events);
 }
         </script>
     </head>
@@ -90,6 +96,9 @@ function parse() {
 
 </tbody>
             </table>
+        </div>
+        <div>
+            <a href="" id="downloadlink">Download</a>
         </div>
     </body>
 </html>
