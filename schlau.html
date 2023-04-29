@@ -31,16 +31,33 @@ Am 01.01.2000 ist Neujahr. am nächsten Freitag morgens von 9:00 eine Stunde Yog
       const inputBox = document.getElementById("inputText");
       const textbox = document.getElementById("urlText");
       const icalbox = document.getElementById("icalText");
+      const downloadLocation = document.getElementById("downloadLocation");
 
       var searchstring = window.location.search.substring(1);
       if (searchstring.length > 0) {
-        inputBox.value = searchstring;
+        inputBox.value = urldecode(searchstring);
       }
+
+      function urldecode(url) {
+        return decodeURIComponent(url.replace(/\+/g, " "));
+      }
+
+      function clear() {
+        textbox.value = "";
+        icalbox.value = "";
+        downloadLocation.innerHTML = "";
+      }
+      function loading() {
+        textbox.value = "Loading...";
+        icalbox.value = "Loading...";
+        downloadLocation.innerHTML = "";
+      }
+
+      clear();
 
       function run() {
         var text = inputBox.value;
-        textbox.value = "loading...";
-        icalbox.value = "loading...";
+        loading();
 
         analyze(text).then((data) => {
           const tab = data.choices[0].text.trim();
@@ -49,14 +66,14 @@ Am 01.01.2000 ist Neujahr. am nächsten Freitag morgens von 9:00 eine Stunde Yog
           const ical = toICal(tab);
           icalbox.value = ical;
 
-          var downloadLocation = document.getElementById("downloadLocation");
           const a = document.createElement("a");
           const file = new Blob([ical], { type: "text/calendar" });
           a.href = URL.createObjectURL(file);
           a.download = "Calendar.ics";
+          a.textContent = "Download Calendar";
           downloadLocation.appendChild(a);
-          a.click();
-          downloadLocation.removeChild(a);
+          //a.click();
+          //downloadLocation.removeChild(a);
         });
       }
     </script>
