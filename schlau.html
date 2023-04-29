@@ -35,11 +35,8 @@ Am 01.01.2000 ist Neujahr. am nächsten Freitag morgens von 9:00 eine Stunde Yog
 
       var searchstring = window.location.search.substring(1);
       if (searchstring.length > 0) {
-        inputBox.value = urldecode(searchstring);
-      }
-
-      function urldecode(url) {
-        return decodeURIComponent(url.replace(/\+/g, " "));
+        inputBox.value = atob(searchstring);
+        run();
       }
 
       function clear() {
