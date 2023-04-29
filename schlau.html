@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>URL Textbox</title>
+  </head>
+  <body>
+    <textarea rows="10" cols="100" id="inputText">
+Am 01.01.2000 ist Neujahr. am nächsten Freitag morgens von 9:00 eine Stunde Yoga. Am 31.01.2000 ist der letzte Tag im Januar. Am 24.12.2022 ist Weihnachten.</textarea
+    >
+    <br />
+    <button onclick="run()">run</button>
+    <br />
+    <textarea
+      rows="10"
+      cols="100"
+      id="urlText"
+      style="font-family: 'Courier New', Courier, monospace"
+    ></textarea>
+    <br />
+
+    <textarea
+      rows="10"
+      cols="100"
+      id="icalText"
+      style="font-family: 'Courier New', Courier, monospace"
+    ></textarea>
+    <br />
+    <div id="downloadLocation"></div>
+    <script src="code.js"></script>
+    <script>
+      const inputBox = document.getElementById("inputText");
+      const textbox = document.getElementById("urlText");
+      const icalbox = document.getElementById("icalText");
+
+      var searchstring = window.location.search.substring(1);
+      if (searchstring.length > 0) {
+        inputBox.value = searchstring;
+      }
+
+      function run() {
+        var text = inputBox.value;
+        textbox.value = "loading...";
+        icalbox.value = "loading...";
+
+        analyze(text).then((data) => {
+          const tab = data.choices[0].text.trim();
+          textbox.value = tab;
+
+          const ical = toICal(tab);
+          icalbox.value = ical;
+
+          var downloadLocation = document.getElementById("downloadLocation");
+          const a = document.createElement("a");
+          const file = new Blob([ical], { type: "text/calendar" });
+          a.href = URL.createObjectURL(file);
+          a.download = "Calendar.ics";
+          downloadLocation.appendChild(a);
+          a.click();
+          downloadLocation.removeChild(a);
+        });
+      }
+    </script>
+  </body>
+</html>
